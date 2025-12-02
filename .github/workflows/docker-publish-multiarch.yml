@@ -42,7 +42,7 @@ jobs:
       - name: Build and push landing
         uses: docker/build-push-action@v4
         with:
-          context: ./landing
+          context: .
           file: ./Dockerfile
           push: true
           platforms: linux/amd64,linux/arm64
