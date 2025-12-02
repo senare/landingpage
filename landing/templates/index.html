@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ .Title }} - {{ .Environment }}</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary-blue': '#1e40af',
+                        'secondary-gray': '#f3f4f6',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { background-color: #e5e7eb; }
+    </style>
+</head>
+
+<body class="font-sans min-h-screen flex items-center justify-center p-4">
+
+<div class="w-full max-w-2xl bg-white shadow-2xl rounded-xl p-8 transition duration-300 hover:shadow-primary-blue/30">
+
+    <!-- Header -->
+    <header class="text-center mb-10">
+        <h1 class="text-4xl font-extrabold text-gray-800 tracking-tight">
+            <span class="text-primary-blue">{{ .Title }}</span> Tooling Hub
+        </h1>
+        <p class="mt-2 text-lg text-gray-500">
+            Environment: {{ .Environment }}
+        </p>
+    </header>
+
+    <!-- Grid -->
+    <div id="tool-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+        {{ range .Items }}
+        <a href="https://{{ .URL }}.{{ $.Base }}" target="_blank"
+           class="tool-card group bg-secondary-gray p-5 rounded-lg border-2 border-transparent
+                  hover:border-primary-blue hover:bg-primary-blue/10 transition duration-300 block">
+
+            <div class="flex items-center space-x-4">
+                <img src="/resources/{{ .Icon }}" alt="{{ .Name }} icon" class="w-10 h-10 rounded">
+                <div>
+                    <h2 class="text-xl font-semibold text-gray-800 group-hover:text-primary-blue">
+                        {{ .Name }}
+                    </h2>
+                    <p class="text-sm text-gray-500 group-hover:text-blue-600">
+                        {{ .URL }}
+                    </p>
+                </div>
+            </div>
+        </a>
+        {{ end }}
+    </div>
+
+    <!-- Footer -->
+    <footer class="mt-10 pt-6 border-t border-gray-200 text-center">
+        <p class="text-sm text-gray-400">
+            Tooling shortcuts for internal cluster environments.
+        </p>
+    </footer>
+
+</div>
+
+</body>
+</html>

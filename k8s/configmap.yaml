@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: landing-config
+data:
+  config.yaml: |
+    title: "Landingpage"
+    environment: "Env"
+    base: "env.github.com"
+    items:
+      - name: "alertmanager"
+        url: "alerts"
+        icon: "alertmanager.png"
+    
+      - name: "prometheus"
+        url: "prometheus"
+        icon: "prometheus.png"
+    
+      - name: "grafana"
+        url: "grafana"
+        icon: "grafana.jpg"
