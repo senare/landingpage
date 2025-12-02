@@ -27,6 +27,10 @@
     <style>
         body { background-color: #e5e7eb; }
         .dark body { background-color: #111827; }
+
+        /* Hide scrollbar but allow horizontal scroll */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 
@@ -69,7 +73,6 @@
     {{ range $i, $tab := .Tabs }}
     <div id="tab-{{ $i }}" class="tab-content {{ if ne $i 0 }}hidden{{ end }}">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-
             {{ range $tab.Items }}
             <a href="{{ .URL }}" target="_blank"
                class="tool-card group bg-secondary-gray dark:bg-gray-800 p-5 rounded-lg border-2 border-transparent
@@ -88,7 +91,6 @@
                 </div>
             </a>
             {{ end }}
-
         </div>
     </div>
     {{ end }}
