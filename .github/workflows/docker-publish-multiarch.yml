@@ -51,14 +51,15 @@ jobs:
           echo "Tags:" >> image-info.txt
           echo "${{ secrets.DOCKERHUB_USERNAME }}/landing:latest" >> image-info.txt
           echo "${{ secrets.DOCKERHUB_USERNAME }}/landing:${{ env.VERSION }}" >> image-info.txt
-          # Persist the file as artifact for next step
-          - name: Upload image info as artifact
-            uses: actions/upload-artifact@v3
-            with:
-              name: image-info
-              path: image-info.txt
 
-      # 7. Create GitHub Release and attach file
+      # 7. Upload image info as artifact
+      - name: Upload image info as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: image-info
+          path: image-info.txt
+
+      # 8. Create GitHub Release and attach file
       - name: Create GitHub Release
         uses: ncipollo/release-action@v1
         with:
