@@ -2,6 +2,7 @@ package main
 
 import (
 	"embed"
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -14,22 +15,69 @@ import (
 //go:embed templates/*.html
 var templatesFS embed.FS
 
-type Item struct {
+type Config struct {
+	Title       string `yaml:"title"`
+	Environment string `yaml:"environment"`
+	Base        string `yaml:"base"`
+	Shards      Shards `yaml:"shards"`
+	Tabs        []Tab  `yaml:"tabs"`
+}
+
+type Shards struct {
+	Designation []string    `yaml:"designation"`
+	Items       []ShardItem `yaml:"items"`
+}
+
+type ShardItem struct {
+	Name string `yaml:"name"`
+	Path string `yaml:"path"`
+	Icon string `yaml:"icon"`
+}
+
+type Tab struct {
+	Name  string    `yaml:"name"`
+	Items []TabItem `yaml:"items"`
+}
+
+type TabItem struct {
 	Name string `yaml:"name"`
 	URL  string `yaml:"url"`
 	Icon string `yaml:"icon"`
 }
 
-type Tab struct {
-	Name  string `yaml:"name"`
-	Items []Item `yaml:"items"`
+type ExpandedShardItem struct {
+	Name string
+	URL  string
+	Icon string
 }
 
-type Config struct {
-	Title       string `yaml:"title"`
-	Environment string `yaml:"environment"`
-	Base        string `yaml:"base"`
-	Tabs        []Tab  `yaml:"tabs"`
+type ShardGroup struct {
+	ShardName string
+	Items     []ExpandedShardItem
+}
+
+func (c *Config) ExpandShards() []ShardGroup {
+	var groups []ShardGroup
+
+	for _, shard := range c.Shards.Designation {
+		var items []ExpandedShardItem
+
+		for _, item := range c.Shards.Items {
+			url := fmt.Sprintf("https://%s.%s/%s", shard, c.Base, item.Path)
+			items = append(items, ExpandedShardItem{
+				Name: item.Name,
+				URL:  url,
+				Icon: item.Icon,
+			})
+		}
+
+		groups = append(groups, ShardGroup{
+			ShardName: shard,
+			Items:     items,
+		})
+	}
+
+	return groups
 }
 
 func loadConfig(path string) (*Config, error) {
@@ -63,10 +111,20 @@ func main() {
 		}
 	}
 
+	expandedShards := cfg.ExpandShards()
+
 	http.Handle("/resources/", http.StripPrefix("/resources/", http.FileServer(http.Dir("resources"))))
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		err := tmpl.ExecuteTemplate(w, "index.html", cfg)
+		data := struct {
+			*Config
+			ExpandedShards []ShardGroup
+		}{
+			Config:         cfg,
+			ExpandedShards: expandedShards,
+		}
+
+		err := tmpl.ExecuteTemplate(w, "index.html", data)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}

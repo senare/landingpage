@@ -58,20 +58,60 @@
 
     <!-- Tabs -->
     <div class="mb-6 border-b border-gray-200 dark:border-gray-700 flex overflow-x-auto no-scrollbar">
+
+        <!-- NEW FIRST TAB: SHARDS -->
+        <button
+                class="tab-btn px-4 py-2 -mb-px font-medium text-gray-600 dark:text-gray-300 border-b-2 border-transparent
+                   hover:text-primary-blue hover:border-primary-blue transition whitespace-nowrap"
+                data-tab="tab-shards">
+            Shards
+        </button>
+
         {{ range $i, $tab := .Tabs }}
         <button
                 class="tab-btn px-4 py-2 -mb-px font-medium text-gray-600 dark:text-gray-300 border-b-2 border-transparent
                    hover:text-primary-blue hover:border-primary-blue transition whitespace-nowrap"
                 data-tab="tab-{{ $i }}"
-                {{ if eq $i 0 }}data-active="true"{{ end }}>
+                {{ if eq $i 0 }}{{ end }}>
             {{ $tab.Name }}
         </button>
         {{ end }}
     </div>
 
-    <!-- Tab Content -->
+    <!-- SHARDS TAB CONTENT -->
+    <div id="tab-shards" class="tab-content">
+        <div class="space-y-4">
+
+            {{ range .ExpandedShards }}
+            <div class="bg-secondary-gray dark:bg-gray-800 p-4 rounded-lg shadow">
+                <details class="group">
+                    <summary class="cursor-pointer text-xl font-semibold text-gray-800 dark:text-gray-100 flex justify-between items-center">
+                        {{ .ShardName }}
+                        <span class="text-gray-500 group-open:rotate-180 transition-transform">▼</span>
+                    </summary>
+
+                    <div class="mt-4 space-y-3">
+                        {{ range .Items }}
+                        <a href="{{ .URL }}" target="_blank"
+                           class="flex items-center space-x-4 bg-white dark:bg-gray-700 p-3 rounded-lg hover:border-primary-blue border border-transparent transition">
+                            <img src="/resources/{{ .Icon }}" class="w-8 h-8 rounded">
+                            <div>
+                                <h3 class="font-medium text-gray-800 dark:text-gray-100">{{ .Name }}</h3>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">{{ .URL }}</p>
+                            </div>
+                        </a>
+                        {{ end }}
+                    </div>
+                </details>
+            </div>
+            {{ end }}
+
+        </div>
+    </div>
+
+    <!-- NORMAL TABS CONTENT -->
     {{ range $i, $tab := .Tabs }}
-    <div id="tab-{{ $i }}" class="tab-content {{ if ne $i 0 }}hidden{{ end }}">
+    <div id="tab-{{ $i }}" class="tab-content hidden">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {{ range $tab.Items }}
             <a href="{{ .URL }}" target="_blank"
@@ -109,25 +149,41 @@
     // -------------------------------
     // Tabs
     // -------------------------------
-    document.querySelectorAll(".tab-btn").forEach(btn => {
+    // -------------------------------
+    // Default selected tab (index 1)
+    // -------------------------------
+    const defaultIndex = 1;
+    const defaultTab = document.querySelectorAll(".tab-btn")[defaultIndex];
+    const defaultContent = document.querySelectorAll(".tab-content")[defaultIndex];
+
+    document.querySelectorAll(".tab-content").forEach(c => c.classList.add("hidden"));
+    document.querySelectorAll(".tab-btn").forEach(b => {
+        b.removeAttribute("data-active");
+        b.classList.remove("text-primary-blue", "border-primary-blue");
+    });
+
+    defaultTab.setAttribute("data-active", "true");
+    defaultTab.classList.add("text-primary-blue", "border-primary-blue");
+    defaultContent.classList.remove("hidden");
+
+
+    const tabs = document.querySelectorAll(".tab-btn");
+    const panels = document.querySelectorAll(".tab-content");
+
+    tabs.forEach(btn => {
         btn.addEventListener("click", () => {
             const target = btn.dataset.tab;
 
-            // Hide all content
-            document.querySelectorAll(".tab-content").forEach(c => c.classList.add("hidden"));
+            panels.forEach(panel => panel.classList.add("hidden"));
+            tabs.forEach(t => t.classList.remove("text-primary-blue", "border-primary-blue"));
 
-            // Remove active styling
-            document.querySelectorAll(".tab-btn").forEach(b => {
-                b.removeAttribute("data-active");
-                b.classList.remove("text-primary-blue", "border-primary-blue");
-            });
-
-            // Show selected
-            btn.setAttribute("data-active", "true");
             btn.classList.add("text-primary-blue", "border-primary-blue");
             document.getElementById(target).classList.remove("hidden");
         });
     });
+
+    // Default to tab-shards as first
+    document.querySelector("[data-tab='tab-shards']").classList.add("text-primary-blue", "border-primary-blue");
 
     // -------------------------------
     // Dark Mode Toggle
